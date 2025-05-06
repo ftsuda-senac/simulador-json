@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html class="h-100">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TADS - PW- Gerenciamento de JSON</title>
+  <link rel="stylesheet" href="/webjars/font-awesome/css/all.min.css" />
+  <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css" />
+</head>
+<body class="d-flex flex-column h-100">
+  <!-- NAVBAR - INICIO -->
+  <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/">Gerenciamento de JSON</a>
+    </div>
+  </nav>
+  <!-- NAVBAR - FIM -->
+  <div class="container-lg flex-shrink-0">
+    <div class="row">
+      <main class="col-lg-12">
+        <h1>Simulador de API com JSON</h1>
+        <img data-th-src="@{/img/json-statham.jpg}" alt="JSON Statham" class="img-fluid" />
+        <section class="mb-3">
+          <h2>Objetivo do projeto</h2>
+          <p>Possibilitar o cadastro qualquer JSON válido para ser acessado através de uma API REST</p>
+          <p>Este projeto foi desenvolvido pensando em facilitar a integração de aplicações frontend que se comunicam com aplicações backend, principalmente nas funcionalidades de consulta de dados</p>
+        </section>
+        <section class="mb-3">
+          <h3>Tecnologias usadas</h3>
+          <ul>
+            <li>Spring Boot 3.4.5 + Java 21 + Maven</li>
+            <li>Banco de dados H2</li>
+            <li>Thymeleaf</li>
+            <li>Bootstrap 5.3.5 e Font Awesome 6.7.2 acessados via Webjars</li>
+          </ul>
+        </section>
+        <section class="mb-3">
+          <h3>Como usar</h3>
+          <ol>
+            <li>Acessar a URL: <a data-th-href="@{/gerenciamento}" data-th-text="${serverDomain} + @{/gerenciamento}">http://localhost:8080/gerenciamento</a></li>
+            <li>Cadastrar um JSON</li>
+            <li>Acessar a URL do JSON cadastrado</li>
+            <li>Consultar o JSON através de uma aplicação frontend (exemplo: Javacript com Fetch API ou XHR, Angular, React, Vue.js)</li>
+          </ol>
+        </section>
+        <section class="mb-3">
+          <h3>Banco de dados H2</h3>
+          <p>Essa aplicação usa o banco de dados H2 que é carregado junto com a aplicação.</p>
+          <p>Por padrão, no Windows, o arquivo será gravado no arquivo <samp>C:\Usuarios\<i>[nome-do-usuario-windows]</i>\tads-pw-jsonserverbd.mv</samp></p>
+          <p>Para acessar o console de gerenciamento do banco para rodar comandos SQL, acessar a URL <a data-th-href="@{/h2-console}" data-th-text="${serverDomain} + @{/h2-console}">http://localhost:8080/gerenciamento</a> e preencher os dados abaixo:</p>
+          <ul>
+            <li>JDBC URL: <b><samp>jdbc:h2:file:~/tads-pw-jsonserverbd</samp></li></b>
+            <li>User name: <b><samp>sa</samp></li></b>
+            <li>Password: <i>(Deixar em branco)</i></li>
+          </ul>
+        </section>
+        <div class="d-grid gap-2 col-6 mx-auto mb-5">
+          <a data-th-href="@{/gerenciamento}" class="btn btn-success btn-lg">COMEÇAR A USAR</a>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- FOOTER - INICIO -->
+  <footer class="footer mt-auto py-3 bg-body-tertiary">
+    <div class="container text-center">
+      <span class="text-body-secondary">&copy; Senac - TADS PW 2025 - @ftsuda</span>
+    </div>
+  </footer>
+  <!-- FOOTER - FIM -->
+  <script src="/webjars/bootstrap/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

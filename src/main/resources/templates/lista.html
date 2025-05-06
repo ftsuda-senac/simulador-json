@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html class="h-100">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TADS - PW- Gerenciamento de JSON</title>
+  <link rel="stylesheet" href="/webjars/font-awesome/css/all.min.css" />
+  <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css" />
+</head>
+<body class="d-flex flex-column h-100">
+  <!-- NAVBAR - INICIO -->
+  <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/">Gerenciamento de JSON</a>
+    </div>
+  </nav>
+  <!-- NAVBAR - FIM -->
+  <div class="container-lg flex-shrink-0">
+    <div class="row">
+      <main class="col-lg-12">
+        <h1>JSONs cadastrados</h1>
+
+        <div id="alerta" class="alert alert-success" role="alert" data-th-if="${!#strings.isEmpty(msg)}">
+          <h4 class="alert-heading" data-th-text="${msg}"></h4>
+        </div>
+        <div id="alerta" class="alert alert-danger" role="alert" data-th-if="${!#strings.isEmpty(msgErro)}">
+          <h4 class="alert-heading" data-th-text="${msgErro}"></h4>
+        </div>
+
+        <table class="table table-striped">
+          <thead class="table-dark">
+            <tr>
+              <th>ID</th>
+              <th>Nome</th>
+              <th>Conteúdo</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="dados">
+            <tr data-th-each="item : ${itens}">
+              <th data-th-text="${item.id}"></th>
+              <td data-th-text="${item.nome}"></td>
+              <td>
+                <div>URL de acesso: <a data-th-href="@{/api/{nome}(nome=${item.nome})}"
+                    data-th-text="${serverDomain} + @{/api/{nome}(nome=${item.nome})}"
+                    target="_blank"></a></div>
+                <hr />
+                <div>
+                  <pre class="font-monospace" data-th-text="${item.conteudo}"></pre>
+                </div>
+              </td>
+              <td>
+                <div class="btn-group" role="group" aria-label="Ações">
+                  <a class="btn btn-primary" role="button" data-th-href="@{/gerenciamento/alterar/{id}(id=${item.id})}">
+                    <i class="fas fa-edit"></i> Alterar
+                  </a>
+                  <button type="button" class="btn btn-danger" data-th-data-item-id="${item.id}" data-th-data-item-nome="${item.nome}" data-bs-toggle="modal" data-bs-target="#modalExcluir">
+                    <i class="fas fa-trash-alt"></i> Excluir
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div>
+          <a class="btn btn-lg btn-success"
+             role="button" data-th-href="@{/gerenciamento/incluir}">
+              <i class="fas fa-plus-square"></i> Incluir novo
+          </a>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div>
+    <div class="modal fade" id="modalExcluir" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
+      aria-labelledby="modalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalLabel"><i class="fas fa-trash-alt"></i> Confirmar exclusão</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+          </div>
+          <div class="modal-body">
+            <p id="modalExcluirMsg">Confirma exclusão?</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">Não</button>
+            <form id="modalExcluirForm" style="display: inline-block" method="post">
+              <button type="submit" class="btn btn-danger">Sim</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER - INICIO -->
+  <footer class="footer mt-auto py-3 bg-body-tertiary">
+    <div class="container text-center">
+      <span class="text-body-secondary">&copy; Senac - TADS PW 2025 - @ftsuda</span>
+    </div>
+  </footer>
+  <!-- FOOTER - FIM -->
+  <script src="/webjars/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Evento show.bs.modal descrito na documentação do Bootstrap
+    document.getElementById('modalExcluir').addEventListener('show.bs.modal', (evt) => {
+      const botaoExcluir = evt.relatedTarget; // Botão clicado que disparou evento
+      const id = botaoExcluir.dataset.itemId; // Recupera informação do atributo data-item-id
+      const nome = botaoExcluir.dataset.itemNome;
+      const elModal = evt.target; // Recuperar o próprio modal
+      elModal.querySelector('#modalExcluirMsg').innerHTML = `Confirma exclusão do item <strong>${nome}</strong> (id: ${id})?`;
+      elModal.querySelector('#modalExcluirForm').action = `/gerenciamento/excluir/${id}`;
+    });
+  </script>
+</body>
+</html>
