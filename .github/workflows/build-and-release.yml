@@ -25,6 +25,59 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
+      - name: Get current version from pom.xml
+        id: get_version
+        run: |
+          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "CURRENT_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Current version is $VERSION"
+
+      - name: Determine version bump (major/minor/patch)
+        id: version_bump
+        run: |
+          LOG=$(git log $(git describe --tags --abbrev=0)..HEAD --pretty=format:"%s")
+          echo "Commits since last tag:"
+          echo "$LOG"
+          if echo "$LOG" | grep -q "BREAKING CHANGE"; then
+            echo "BUMP=major" >> $GITHUB_ENV
+          elif echo "$LOG" | grep -q "^feat"; then
+            echo "BUMP=minor" >> $GITHUB_ENV
+          elif echo "$LOG" | grep -q "^fix"; then
+            echo "BUMP=patch" >> $GITHUB_ENV
+          else
+            echo "BUMP=patch" >> $GITHUB_ENV  # fallback
+          fi
+
+      - name: Calculate next version
+        id: next_version
+        run: |
+          IFS='.' read -r MAJOR MINOR PATCH <<<"${{ env.CURRENT_VERSION }}"
+          BUMP=${{ env.BUMP }}
+          if [ "$BUMP" = "major" ]; then
+            MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0
+          elif [ "$BUMP" = "minor" ]; then
+            MINOR=$((MINOR + 1)); PATCH=0
+          else
+            PATCH=$((PATCH + 1))
+          fi
+          NEXT_VERSION="$MAJOR.$MINOR.$PATCH"
+          echo "RELEASE_VERSION=$NEXT_VERSION" >> $GITHUB_ENV
+          echo "New version will be $NEXT_VERSION"
+
+      - name: Set new version in pom.xml
+        run: mvn versions:set -DnewVersion=${{ env.RELEASE_VERSION }} -DgenerateBackupPoms=false
+
+      - name: Commit and tag release
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git commit -am "chore(release): v${{ env.RELEASE_VERSION }}"
+          git tag v${{ env.RELEASE_VERSION }}
+          git remote set-url origin https://x-access-token:${GH_PAT}@github.com/${{ github.repository }}
+          git push origin main --follow-tags
+
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
@@ -34,38 +87,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Build with Maven
-        run: mvn -B package --file pom.xml -Pprod -DskipTests
-
-      - name: Get version from pom.xml
-        id: get_version
-        run: |
-          echo ${{ env.GH_REPO }}
-          echo ${{ env.GH_USERNAME }}
-          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "RELEASE_TAG=v$VERSION" >> $GITHUB_ENV
-
-      # - name: Create Git tag
-      #   env:
-      #     GH_PAT: ${{ secrets.GH_PAT }}
-      #   run: |
-      #     if git rev-parse "$RELEASE_TAG" >/dev/null 2>&1; then
-      #       echo "Tag $RELEASE_TAG already exists. Skipping tag creation."
-      #     else
-      #       git config user.name "github-actions"
-      #       git config user.email "github-actions@github.com"
-      #       git tag "$RELEASE_TAG"
-      #       git push origin "$RELEASE_TAG"
-      #     fi
-
-      # - name: Create GitHub Release
-      #   uses: softprops/action-gh-release@v2
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     tag_name: v${{ env.VERSION }}
-      #     name: Release v${{ env.VERSION }}
-      #     files: target/*.jar
+        run: mvn -B vlean package --file pom.xml -Pprod -DskipTests
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
