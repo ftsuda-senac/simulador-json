@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TADS - PW- Gerenciamento de JSON</title>
+  <title>TADS - PW - Gerenciamento e Simulador de JSON</title>
   <link rel="stylesheet" href="/webjars/font-awesome/css/all.min.css" />
   <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css" />
 </head>
@@ -12,7 +12,7 @@
   <!-- NAVBAR - INICIO -->
   <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
     <div class="container-fluid">
-      <a class="navbar-brand" href="/">Gerenciamento de JSON</a>
+      <a class="navbar-brand" href="/">Gerenciamento e Simulador de JSON</a>
     </div>
   </nav>
   <!-- NAVBAR - FIM -->
@@ -22,6 +22,16 @@
       <main class="col-lg-12">
         <h1 data-th-if="${item.id == null}">Incluir JSON</h1>
         <h1 data-th-unless="${item.id == null}">Alterar JSON - ID <strong data-th-text="${item.id}"></strong></h1>
+
+        <div class="row mb-3">
+          <label for="jsonFile" class="col-sm-2 form-label">Carregar arquivo</label>
+          <div class="col-sm-10">
+            <input class="form-control form-control-sm" type="file" id="jsonFile">
+          </div>
+        </div>
+
+        <hr />
+        <p class="offset-sm-2">Se preferir não carregar arquivo, preencher os dados abaixo manualmente</p>
         <form method="post" novalidate id="formDados" data-th-object="${item}"> <!-- POR PADRAO, O SUBMIT FAZ REQUISICAO PARA A URL ATUAL -->
           <div class="row mb-3">
             <label for="txtNome" class="col-sm-2 col-form-label">Nome</label>
@@ -48,12 +58,6 @@
                 data-th-classappend="${#fields.hasErrors('conteudo')}? is-invalid"
                 ></textarea>
               <p class="invalid-feedback" data-th-if="${#fields.hasErrors('conteudo')}" data-th-errors="*{conteudo}"></p>
-            </div>
-            <div class="mb-3">
-              <div class="col-sm-10 offset-sm-2">
-                <label for="jsonFile" class="form-label">Carregar arquivo</label>
-                <input class="form-control form-control-sm" type="file" id="jsonFile">
-              </div>
             </div>
           </div>
 
@@ -90,6 +94,15 @@
       reader.onload = function (evt1) {
         document.getElementById('txtConteudo').textContent = evt1.target.result;
         evt.target.files[0] = null;
+        const inputNome = document.getElementById('txtNome');
+        if (!inputNome.value) {
+          const fileName = file.name.split('.').slice(0, -1).join('-') // Remove a extensão do arquivo
+            .toLowerCase() // Converte para minúsculas
+            .replace(/\s+/g, '-') // Substitui espaços em branco por -
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, "") // Remove acentuação
+            .replace(/[^a-zA-Z0-9-_]/g, '') // Remove caracteres especiais
+          inputNome.value = fileName;
+        }
       };
       reader.readAsText(file);
     });

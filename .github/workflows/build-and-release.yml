@@ -1,0 +1,49 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - main
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: '21' # Specify the Java version
+          distribution: 'adopt'
+
+      - name: Build with Maven
+        run: mvn clean package
+
+      - name: Upload JAR file
+        uses: actions/upload-artifact@v2
+        with:
+          name: jsonserver-jar
+          path: target/*.jar
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Download JAR file
+        uses: actions/download-artifact@v2
+        with:
+          name: jsonserver-jar
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          files: target/*.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
