@@ -31,7 +31,7 @@ jobs:
           echo "VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
 
       - name: Upload JAR file
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: simulador-json
           path: ${{ github.workspace }}/target/*.jar
