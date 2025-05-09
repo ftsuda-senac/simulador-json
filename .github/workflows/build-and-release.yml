@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # garante que todas as tags e histórico sejam buscados
 
       - name: Set up JDK
         uses: actions/setup-java@v4
@@ -40,6 +42,8 @@ jobs:
           echo "RELEASE_TAG=v$VERSION" >> $GITHUB_ENV
 
       - name: Create Git tag
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           if git rev-parse "$RELEASE_TAG" >/dev/null 2>&1; then
             echo "Tag $RELEASE_TAG already exists. Skipping tag creation."
@@ -52,9 +56,10 @@ jobs:
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v${{ env.VERSION }}
           name: Release v${{ env.VERSION }}
           files: target/*.jar
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
