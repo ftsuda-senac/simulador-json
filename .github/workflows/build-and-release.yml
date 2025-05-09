@@ -34,7 +34,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: simulador-json-${{ env.VERSION }}
-          path: ${{ github.workspace }}/target/*.jar
+          path: target/*.jar
           retention-days: 1
 
   release:
@@ -51,6 +51,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ env.VERSION }}
-          files: *.jar
+          files:  target/*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
