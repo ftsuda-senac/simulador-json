@@ -10,6 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check GitHub token permissions
+        run: |
+          curl -H "Authorization: token ${{ secrets.GH_PAT }}" https://api.github.com/repos/${{ github.repository }}
+
       - name: Checkout code
         uses: actions/checkout@v4
         with:
@@ -70,4 +74,4 @@ jobs:
           name: Release v${{ env.VERSION }}
           files: target/*.jar
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
