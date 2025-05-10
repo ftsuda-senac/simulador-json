@@ -42,9 +42,18 @@
               <th data-th-text="${item.id}"></th>
               <td data-th-text="${item.nome}"></td>
               <td>
-                <div>URL de acesso: <a data-th-href="@{/api/{nome}(nome=${item.nome})}"
+                <div>
+                  <span>URL de acesso: </span>
+                  <a data-th-href="@{/api/{nome}(nome=${item.nome})}"
                     data-th-text="${serverDomain} + @{/api/{nome}(nome=${item.nome})}"
-                    target="_blank"></a></div>
+                    data-bs-toggle="tooltip" data-bs-title="Usar esta URL no comando Fetch do Javascript"
+                    data-bs-placement="bottom"
+                    target="_blank"></a>
+                  <a href="#" class="copiar text-secondary"
+                    data-th-data-api-url="${serverDomain} + @{/api/{nome}(nome=${item.nome})}"
+                    data-bs-toggle="tooltip" data-bs-title="Copiar para Área de transferência"
+                    data-bs-placement="bottom"><i class="fa-solid fa-copy"></i></a>
+                </div>
                 <hr />
                 <div>
                   <pre class="font-monospace" data-th-text="${item.conteudo}"></pre>
@@ -114,6 +123,39 @@
       elModal.querySelector('#modalExcluirMsg').innerHTML = `Confirma exclusão do item <strong>${nome}</strong> (id: ${id})?`;
       elModal.querySelector('#modalExcluirForm').action = `/gerenciamento/excluir/${id}`;
     });
+
+    // Habilitar tooltip do Boostrap
+    document.addEventListener('DOMContentLoaded', () => {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
+      const btnCopiarAll = document.querySelectorAll('a[data-bs-toggle="tooltip"].copiar');
+      [...btnCopiarAll].forEach((btnCopiarEl) => {
+        const tooltip = bootstrap.Tooltip.getOrCreateInstance(btnCopiarEl);
+        btnCopiarEl.addEventListener('hidden.bs.tooltip', () => {
+          tooltip.setContent({ '.tooltip-inner': 'Copiar para Área de transferência' });
+        });
+      });
+
+      // Copiar URL para área de transferência
+      document.querySelectorAll('a.copiar').forEach((el) => {
+        el.addEventListener('click', (event) => {
+          event.preventDefault();
+
+          // Pegando pelo currentTarget por causa do <i> do FontAwesome
+          const btnCopiar = event.currentTarget;
+          const url = btnCopiar.dataset.apiUrl;
+          console.log('URL a ser copiada: ', url);
+          navigator.clipboard.writeText(url).then(() => {
+            const tooltip = bootstrap.Tooltip.getOrCreateInstance(btnCopiar);
+            tooltip.setContent({ '.tooltip-inner': 'Copiado' });
+          }).catch(err => {
+            console.error('Erro ao copiar URL: ', err);
+          });
+        });
+      });
+    });
+
   </script>
 </body>
 </html>
